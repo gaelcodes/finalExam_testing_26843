@@ -66,4 +66,31 @@ public class MembershipServiceTest {
         
         membershipService.registerMembership(userId, typeId);
     }
+
+    @Test
+    public void approveMembership_pendingMembership_setsStatusApproved() {
+        UUID membershipId = UUID.randomUUID();
+        Membership membership = new Membership();
+        membership.setMembershipId(membershipId);
+        membership.setMembershipStatus(MembershipStatus.PENDING);
+        
+        when(membershipDao.findById(membershipId)).thenReturn(membership);
+        
+        membershipService.approveMembership(membershipId);
+        
+        verify(membershipDao).save(membership);
+        assertEquals(MembershipStatus.APPROVED, membership.getMembershipStatus());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void approveMembership_alreadyApprovedMembership_throwsException() {
+        UUID membershipId = UUID.randomUUID();
+        Membership membership = new Membership();
+        membership.setMembershipId(membershipId);
+        membership.setMembershipStatus(MembershipStatus.APPROVED);
+        
+        when(membershipDao.findById(membershipId)).thenReturn(membership);
+        
+        membershipService.approveMembership(membershipId);
+    }
 }

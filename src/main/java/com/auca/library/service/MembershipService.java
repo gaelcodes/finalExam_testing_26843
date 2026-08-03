@@ -46,4 +46,19 @@ public class MembershipService {
         
         membershipDao.save(membership);
     }
+
+    public void approveMembership(UUID membershipId) {
+        Membership membership = membershipDao.findById(membershipId);
+        if (membership == null) {
+            throw new IllegalArgumentException("Membership not found");
+        }
+        if (membership.getMembershipStatus() == MembershipStatus.APPROVED) {
+            throw new IllegalArgumentException("Membership is already approved");
+        }
+        
+        membership.setMembershipStatus(MembershipStatus.APPROVED);
+        membership.setExpiringTime(LocalDateTime.now().plusYears(1));
+        
+        membershipDao.save(membership);
+    }
 }
