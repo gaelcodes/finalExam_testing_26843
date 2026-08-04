@@ -46,6 +46,15 @@ public class BorrowingServiceTest {
         book.setBookId(bookId);
         book.setBookStatus(BookStatus.AVAILABLE);
         
+        com.auca.library.domain.MembershipType goldType = new com.auca.library.domain.MembershipType();
+        goldType.setMembershipName("Gold");
+        
+        com.auca.library.domain.Membership membership = new com.auca.library.domain.Membership();
+        membership.setMembershipStatus(com.auca.library.domain.enums.MembershipStatus.APPROVED);
+        membership.setMembershipType(goldType);
+        
+        when(membershipDao.findActiveByUserId(readerId)).thenReturn(membership);
+        when(borrowerDao.countActiveBorrowsByReaderId(readerId)).thenReturn(0L);
         when(userDao.findById(readerId)).thenReturn(reader);
         when(bookDao.findById(bookId)).thenReturn(book);
         
@@ -72,6 +81,15 @@ public class BorrowingServiceTest {
         book.setBookId(bookId);
         book.setBookStatus(BookStatus.AVAILABLE);
         
+        com.auca.library.domain.MembershipType goldType = new com.auca.library.domain.MembershipType();
+        goldType.setMembershipName("Gold");
+        
+        com.auca.library.domain.Membership membership = new com.auca.library.domain.Membership();
+        membership.setMembershipStatus(com.auca.library.domain.enums.MembershipStatus.APPROVED);
+        membership.setMembershipType(goldType);
+        
+        when(membershipDao.findActiveByUserId(readerId)).thenReturn(membership);
+        when(borrowerDao.countActiveBorrowsByReaderId(readerId)).thenReturn(0L);
         when(userDao.findById(readerId)).thenReturn(reader);
         when(bookDao.findById(bookId)).thenReturn(book);
         
@@ -93,6 +111,15 @@ public class BorrowingServiceTest {
         book.setBookId(bookId);
         book.setBookStatus(BookStatus.AVAILABLE);
         
+        com.auca.library.domain.MembershipType goldType = new com.auca.library.domain.MembershipType();
+        goldType.setMembershipName("Gold");
+        
+        com.auca.library.domain.Membership membership = new com.auca.library.domain.Membership();
+        membership.setMembershipStatus(com.auca.library.domain.enums.MembershipStatus.APPROVED);
+        membership.setMembershipType(goldType);
+        
+        when(membershipDao.findActiveByUserId(readerId)).thenReturn(membership);
+        when(borrowerDao.countActiveBorrowsByReaderId(readerId)).thenReturn(0L);
         when(userDao.findById(readerId)).thenReturn(reader);
         when(bookDao.findById(bookId)).thenReturn(book);
         
@@ -105,4 +132,81 @@ public class BorrowingServiceTest {
         LocalDate expectedDue = saved.getPickupDate().plusDays(14); // default 14 days
         assertEquals(expectedDue, saved.getDueDate());
     }
+
+    @Test
+    public void goldMember_withFourActiveBorrows_canBorrowAFifth() {
+        UUID readerId = UUID.randomUUID();
+        com.auca.library.domain.MembershipType goldType = new com.auca.library.domain.MembershipType();
+        goldType.setMembershipName("Gold");
+        
+        com.auca.library.domain.Membership membership = new com.auca.library.domain.Membership();
+        membership.setMembershipStatus(com.auca.library.domain.enums.MembershipStatus.APPROVED);
+        membership.setMembershipType(goldType);
+        
+        when(membershipDao.findActiveByUserId(readerId)).thenReturn(membership);
+        when(borrowerDao.countActiveBorrowsByReaderId(readerId)).thenReturn(4L);
+        
+        // This should not throw an exception
+        borrowingService.validateBorrowLimit(readerId);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void goldMember_withFiveActiveBorrows_cannotBorrowASixth() {
+        UUID readerId = UUID.randomUUID();
+        com.auca.library.domain.MembershipType goldType = new com.auca.library.domain.MembershipType();
+        goldType.setMembershipName("Gold");
+        
+        com.auca.library.domain.Membership membership = new com.auca.library.domain.Membership();
+        membership.setMembershipStatus(com.auca.library.domain.enums.MembershipStatus.APPROVED);
+        membership.setMembershipType(goldType);
+        
+        when(membershipDao.findActiveByUserId(readerId)).thenReturn(membership);
+        when(borrowerDao.countActiveBorrowsByReaderId(readerId)).thenReturn(5L);
+        
+        borrowingService.validateBorrowLimit(readerId);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void silverMember_withThreeActiveBorrows_isBlocked() {
+        UUID readerId = UUID.randomUUID();
+        com.auca.library.domain.MembershipType type = new com.auca.library.domain.MembershipType();
+        type.setMembershipName("Silver");
+        
+        com.auca.library.domain.Membership membership = new com.auca.library.domain.Membership();
+        membership.setMembershipStatus(com.auca.library.domain.enums.MembershipStatus.APPROVED);
+        membership.setMembershipType(type);
+        
+        when(membershipDao.findActiveByUserId(readerId)).thenReturn(membership);
+        when(borrowerDao.countActiveBorrowsByReaderId(readerId)).thenReturn(3L);
+        
+        borrowingService.validateBorrowLimit(readerId);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void striverMember_withTwoActiveBorrows_isBlocked() {
+        UUID readerId = UUID.randomUUID();
+        com.auca.library.domain.MembershipType type = new com.auca.library.domain.MembershipType();
+        type.setMembershipName("Striver");
+        
+        com.auca.library.domain.Membership membership = new com.auca.library.domain.Membership();
+        membership.setMembershipStatus(com.auca.library.domain.enums.MembershipStatus.APPROVED);
+        membership.setMembershipType(type);
+        
+        when(membershipDao.findActiveByUserId(readerId)).thenReturn(membership);
+        when(borrowerDao.countActiveBorrowsByReaderId(readerId)).thenReturn(2L);
+        
+        borrowingService.validateBorrowLimit(readerId);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void userWithoutApprovedMembership_isBlocked() {
+        UUID readerId = UUID.randomUUID();
+        com.auca.library.domain.Membership membership = new com.auca.library.domain.Membership();
+        membership.setMembershipStatus(com.auca.library.domain.enums.MembershipStatus.PENDING);
+        
+        when(membershipDao.findActiveByUserId(readerId)).thenReturn(membership);
+        
+        borrowingService.validateBorrowLimit(readerId);
+    }
+
 }

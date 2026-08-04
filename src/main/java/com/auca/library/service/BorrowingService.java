@@ -25,7 +25,7 @@ public class BorrowingService {
     }
 
     public void borrowBook(UUID readerId, UUID bookId) {
-        // We assume limit validation will be added later for Req 7
+        validateBorrowLimit(readerId);
         
         Book book = bookDao.findById(bookId);
         if (book == null || book.getBookStatus() != BookStatus.AVAILABLE) {
@@ -48,5 +48,24 @@ public class BorrowingService {
         
         borrowerDao.save(borrower);
         bookDao.save(book);
+    }
+
+    public void validateBorrowLimit(UUID readerId) {
+        com.auca.library.domain.Membership membership = membershipDao.findActiveByUserId(readerId);
+        if (membership == null || membership.getMembershipStatus() != com.auca.library.domain.enums.MembershipStatus.APPROVED) {
+            throw new IllegalArgumentException("User does not have an approved membership");
+        }
+        
+        long activeBorrows = borrowerDao.countActiveBorrowsByReaderId(readerId);
+        String typeName = membership.getMembershipType().getMembershipName();
+        
+        int limit = 0;
+        if ("Gold".equalsIgnoreCase(typeName)) limit = 5;
+        else if ("Silver".equalsIgnoreCase(typeName)) limit = 3;
+        else if ("Striver".equalsIgnoreCase(typeName)) limit = 2;
+        
+        if (activeBorrows >= limit) {
+            throw new IllegalArgumentException("Borrow limit reached for membership type: " + typeName);
+        }
     }
 }
