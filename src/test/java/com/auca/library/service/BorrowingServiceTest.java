@@ -209,4 +209,62 @@ public class BorrowingServiceTest {
         borrowingService.validateBorrowLimit(readerId);
     }
 
+    @Test
+    public void returnBook_onTime_calculatesZeroFine() {
+        UUID borrowerId = UUID.randomUUID();
+        Borrower borrower = new Borrower();
+        borrower.setId(borrowerId);
+        borrower.setDueDate(LocalDate.now().plusDays(2)); // due in future
+        borrower.setLateChargeFees(java.math.BigDecimal.ZERO);
+        
+        Book book = new Book();
+        book.setBookStatus(BookStatus.BORROWED);
+        borrower.setBook(book);
+        
+        when(borrowerDao.findById(borrowerId)).thenReturn(borrower);
+        
+        borrowingService.returnBook(borrowerId);
+        
+        verify(borrowerDao).save(borrower);
+        assertEquals(java.math.BigDecimal.ZERO, borrower.getLateChargeFees());
+    }
+
+    @Test
+    public void returnBook_twoDaysLate_calculates20RwfFine() {
+        UUID borrowerId = UUID.randomUUID();
+        Borrower borrower = new Borrower();
+        borrower.setId(borrowerId);
+        borrower.setDueDate(LocalDate.now().minusDays(2)); // due 2 days ago
+        borrower.setLateChargeFees(java.math.BigDecimal.ZERO);
+        
+        Book book = new Book();
+        book.setBookStatus(BookStatus.BORROWED);
+        borrower.setBook(book);
+        
+        when(borrowerDao.findById(borrowerId)).thenReturn(borrower);
+        
+        borrowingService.returnBook(borrowerId);
+        
+        verify(borrowerDao).save(borrower);
+        assertEquals(new java.math.BigDecimal(20), borrower.getLateChargeFees());
+    }
+
+    @Test
+    public void returnBook_setsBookStatusAvailable() {
+        UUID borrowerId = UUID.randomUUID();
+        Borrower borrower = new Borrower();
+        borrower.setId(borrowerId);
+        borrower.setDueDate(LocalDate.now().plusDays(2));
+        
+        Book book = new Book();
+        book.setBookStatus(BookStatus.BORROWED);
+        borrower.setBook(book);
+        
+        when(borrowerDao.findById(borrowerId)).thenReturn(borrower);
+        
+        borrowingService.returnBook(borrowerId);
+        
+        verify(bookDao).save(book);
+        assertEquals(BookStatus.AVAILABLE, book.getBookStatus());
+    }
 }

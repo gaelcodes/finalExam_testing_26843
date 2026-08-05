@@ -68,4 +68,24 @@ public class BorrowingService {
             throw new IllegalArgumentException("Borrow limit reached for membership type: " + typeName);
         }
     }
+
+    public void returnBook(UUID borrowerId) {
+        Borrower borrower = borrowerDao.findById(borrowerId);
+        if (borrower == null || borrower.getReturnDate() != null) {
+            throw new IllegalArgumentException("Borrower record not found or already returned");
+        }
+        
+        borrower.setReturnDate(LocalDate.now());
+        
+        long daysLate = java.time.temporal.ChronoUnit.DAYS.between(borrower.getDueDate(), borrower.getReturnDate());
+        if (daysLate > 0) {
+            borrower.setLateChargeFees(new java.math.BigDecimal(daysLate * 10)); // 10 RWF per late day
+        }
+        
+        Book book = borrower.getBook();
+        book.setBookStatus(BookStatus.AVAILABLE);
+        
+        borrowerDao.save(borrower);
+        bookDao.save(book);
+    }
 }

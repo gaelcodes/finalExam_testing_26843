@@ -32,4 +32,10 @@ public class BorrowerDao {
             return query.uniqueResult();
         }
     }
+
+    public Borrower findById(UUID id) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.get(Borrower.class, id);
+        }
+    }
 }
