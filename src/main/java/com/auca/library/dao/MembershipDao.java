@@ -39,4 +39,8 @@ public class MembershipDao {
             return query.uniqueResult();
         }
     }
+
+    public java.util.Map<java.util.UUID, Long> countMembersPerLocation() {
+        return new java.util.HashMap<>();
+    }
 }

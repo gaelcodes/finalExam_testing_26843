@@ -26,4 +26,8 @@ public class BookDao {
             return session.get(Book.class, id);
         }
     }
+
+    public java.util.Map<java.util.UUID, Long> countBooksPerLocation() {
+        return new java.util.HashMap<>();
+    }
 }
