@@ -13,12 +13,35 @@ public class MembershipType {
     private int maxBooks;
     private BigDecimal price;
 
-    public UUID getMembershipTypeId() { return membershipTypeId; }
-    public void setMembershipTypeId(UUID membershipTypeId) { this.membershipTypeId = membershipTypeId; }
-    public String getMembershipName() { return membershipName; }
-    public void setMembershipName(String membershipName) { this.membershipName = membershipName; }
-    public int getMaxBooks() { return maxBooks; }
-    public void setMaxBooks(int maxBooks) { this.maxBooks = maxBooks; }
-    public BigDecimal getPrice() { return price; }
-    public void setPrice(BigDecimal price) { this.price = price; }
+    public UUID getMembershipTypeId() {
+        return membershipTypeId;
+    }
+
+    public void setMembershipTypeId(UUID membershipTypeId) {
+        this.membershipTypeId = membershipTypeId;
+    }
+
+    public String getMembershipName() {
+        return membershipName;
+    }
+
+    public void setMembershipName(String membershipName) {
+        this.membershipName = membershipName;
+    }
+
+    public int getMaxBooks() {
+        return maxBooks;
+    }
+
+    public void setMaxBooks(int maxBooks) {
+        this.maxBooks = maxBooks;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
 }

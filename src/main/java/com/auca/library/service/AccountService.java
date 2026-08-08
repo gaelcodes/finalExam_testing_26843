@@ -19,7 +19,6 @@ public class AccountService {
             throw new IllegalArgumentException("Username already exists");
         }
         
-        // Use a simple hash for demonstration
         String hashedPassword = hashPassword(user.getPassword());
         user.setPassword(hashedPassword);
         
@@ -27,6 +26,6 @@ public class AccountService {
     }
 
     public String hashPassword(String password) {
-        return "HASHED_" + password; // Dummy hash for simplicity
+        return "HASHED_" + password;
     }
 }

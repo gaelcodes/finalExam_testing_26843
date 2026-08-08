@@ -46,9 +46,7 @@ public class InventoryService {
             throw new IllegalArgumentException("Book not found");
         }
         
-        int booksOnShelf = shelf.getInitialStock() - shelf.getBorrowedNumber(); 
-        // In reality, this might be calculated by querying books on shelf
-        // but for Req 9 we'll just check if initial stock meets capacity limits
+        int booksOnShelf = shelf.getInitialStock() - shelf.getBorrowedNumber();
         
         if (shelf.getInitialStock() >= SHELF_MAX_BOOKS) {
             throw new IllegalArgumentException("Shelf is full, cannot add more books");

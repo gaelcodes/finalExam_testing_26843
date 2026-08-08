@@ -61,10 +61,6 @@ public class LocationService {
         while (current != null && current.getLocationType() != LocationType.PROVINCE) {
             current = current.getParent();
             if (current != null) {
-                // If lazy loaded, might need to ensure session is open, but assuming eagerly loaded or within session
-                // We'll refactor if LazyInitializationException occurs, but dao methods close session. 
-                // So we need to fetch recursively in Dao or initialize.
-                // For simplicity, fetch from DB again.
                 current = locationDao.findById(current.getLocationId());
             }
         }
