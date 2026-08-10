@@ -32,3 +32,6 @@ mvn clean test
 
 Entities are designed without Lombok annotations and use manually written getters, setters, and constructors as requested.
 The project uses Java 21, Hibernate 6.5+, and Mockito (with experimental byte-buddy support for Java 21+).
+
+### Thank you!!
+
