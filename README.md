@@ -1,4 +1,4 @@
-# finalExam_testing_26843 - Library Management System
+# finalExam_testing_26843 - AUCA Library Management System
 
 This repository contains the backend services and tests for a Library Management System built with Java, Hibernate, and JUnit, using Postgres as the database.
 
